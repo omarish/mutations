@@ -1,6 +1,13 @@
 # Mutations
 
-Encapsulate your business logic into commands.
+Compose your business logic into commands that sanitize and validate input.
+
+## How it Works:
+
+1. Subclass `mutations.Mutation`
+2. Define your inputs.
+3. Define an `execute` method in your command.
+4. Run it, lke this: `SimpleMutation.run(foo='bar')`
 
 ## Example
 
@@ -8,8 +15,8 @@ Encapsulate your business logic into commands.
 import mutations
 
 class EmailToBouncedMessage(mutations.Mutation):
-    email = mutations.fields.Object(required=True)
-    send_welcome_email = mutation.fields.Boolean(required=False, default=False)
+    email = mutations.fields.CharField(required=True)
+    send_welcome_email = mutations.fields.Boolean(required=False, default=False)
 
     def validate_email_object(self):
         """Custom validation for a field.
@@ -28,16 +35,12 @@ class EmailToBouncedMessage(mutations.Mutation):
 
         This method does the heavy lifting. You can call it by calling .run() on
         your mutation class.
-
-        This will raise `mutation.RuntimeError` if an error was encountered
-        during execution.
         """
         new_object = "this is the new object"
-        # Do the heavy lifting here. 
-        # You might want to wrap this in a django atomic block.
         if self.send_welcome_email:
-            # You can access the inputs here.
-            pass
+            # You can access the inputs here, like this.
+            PersonalEmailServer.deliver(recipient = self.email)
+
         return new_object
 ```
 
@@ -61,3 +64,41 @@ mutations.ErrorDict({
 >>> result.value
 None
 ```
+
+## Testing
+
+```bash
+$ make tests
+```
+
+## TODO:
+
+### General
+
+- [ ] Update README and provide more useful examples.
+- [ ] Put test requirements into `test-requirements.txt`
+- [ ] Make execute an `@abstractmethod`, so that an error gets raised if you don't define `execute` in your mutation subclass.
+- [x] Create setup.py file
+- [ ] Add to pypi.
+- [x] Add `__version__`
+- [ ] Support for running commands in an atomic (all or nothing) fashion.
+- [ ] Support for Python 2.X.
+
+### Testing
+
+- [ ] Make sure default values get overridden if there's a user-provided value.
+- [ ] Make sure command fails if you provide unexpected inputs.
+- [ ] Make sure `Mutation.__getattr__` raises if you ask it for something that does not exist.
+
+
+# Versioning
+
+This project uses [Semantic Versioning][semver].
+
+# Thanks
+
+Thanks to Cypriss for the excellent Ruby [Mutations Gem][1]. I created this
+library because I was looking for something similar for Python.
+
+[1]: https://github.com/cypriss/mutations
+[semver]: https://semver.org/

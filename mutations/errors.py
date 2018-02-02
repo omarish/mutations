@@ -1,2 +1,0 @@
-class ErrorDict(dict):
-    pass

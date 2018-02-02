@@ -1,17 +1,19 @@
 import abc
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 
-import fields
+from . import fields
+from . import validators
+from . import error
+from .util import wrap
 
-
-MutationResult = namedtuple('MutationResult', ['result', 'value', 'errors'])
+Result = namedtuple('Result', ['success', 'return_value', 'errors'])
 
 class MutationBase(type):
     def __new__(mcs, name, bases, attrs):
         attrs.update({
             'fields': {},
-            'validators': {},
-            'extra_validators': {}
+            'validators': defaultdict(list),
+            'extra_validators': defaultdict(list)
         })
         field_list, extra_validator_list = [], []
 
@@ -21,68 +23,82 @@ class MutationBase(type):
             elif isinstance(k, str) and k.startswith('validate_'):
                 extra_validator_list.append(k)
 
-        for field in field_list:
-            attrs['fields'][field] = attrs.pop(field)
+        for f in field_list:
+            field = attrs.pop(f)
+            attrs['fields'][f] = field
+            attrs['validators'][f].extend(wrap(field.validators))
 
-        for field in extra_validator_list:
-            attrs['extra_validators'][field] = attrs.pop(field)
+        for v in extra_validator_list:
+            validator = attrs.pop(v)
+            attrs['extra_validators'][v].extend(wrap(validator))
+            
         return super().__new__(mcs, name, bases, attrs)
 
-    @abc.abstractmethod
-    def run(cls, **kwargs):
-        pass
-
 class Mutation(metaclass=MutationBase):
-    def validate(self):
-        pass
+    def __init__(self, name, inputs=None):
+        self.name = name
+        self.inputs = inputs or {}
+
+    def __repr__(self):
+        return '<Mutation {!r}>'.format(self.name)
+
+    def __getattr__(self, name):
+        if name in self.fields:
+            return self._get_input(name)
+        else:
+            raise AttributeError
+
+    def _do_validation(self):
+        errors = self._validate_base_fields() + self._validate_extra_fields()
+        if errors.is_empty:
+            return (True, None)
+        else:
+            return (False, errors)
+
+    def _validate_base_fields(self):
+        _ = error.ErrorDict()
+        for field, validators in self.validators.items():
+            value = self._get_input(field)
+            for validator in validators:
+                success, msg = validator.validate(value)
+                if not success:
+                    _[field].append(msg)
+        return _
+
+    def _validate_extra_fields(self):
+        _ = error.ErrorDict()
+        for field, func in self.extra_validators.items():
+            value = self._get_input(field)
+            try:
+                func(value)
+            except error.ValidationError as err:
+                msg = str(err)
+                if msg == '':
+                    msg = "ValidationError"
+                _[field].append(msg)
+        return _
+
+    def _get_input(self, field):
+        if field in self.inputs:
+            return self.inputs[field]
+        elif self.fields[field].has_default:
+            return self.fields[field].default
+
+    def execute(self):
+        raise error.ExecuteNotImplementedError(
+            "`execute` should be implemented by the subclass.")
 
     @classmethod
-    def run(cls, **kwargs):
-        pass
+    def run(cls, raise_on_error=False, **kwargs):
+        """Validate the inputs and then calls execute() to run the command. """
+        instance = cls(cls.__name__, inputs = kwargs)
+        is_valid, error_dict = instance._do_validation()
 
+        if not is_valid:
+            if raise_on_error:
+                raise error.ValidationError
+            else:
+                return Result(success=False, return_value=None, errors=error_dict)
 
-
-
-# class Mutation(type):
-#     def __init__(self, name, inputs=None):
-#         if not inputs:
-#             inputs = {}
-#         self.name = name
-#         self.inputs = inputs
-#         self.return_value = None
-#         self.errors = None
-
-#         self._fields = self._process_fields()
-
-#     def __repr__(self):
-#         return '<Mutation {!r}>'.format(self.name)
-
-#     def _process_fields(self):
-#         """Ensure all fields are valid definitions. """
-#         # import ipdb; ipdb.set_trace()
-#         pass
-
-#     def validate(self):
-#         pass
-
-#     @classmethod
-#     def execute(klass, *args, **kwargs):
-#         raise NotImplementedError("This should be implemented in the subclass.")
-
-#     @classmethod
-#     def run(cls, **kwargs):
-#         success, return_value = None, None
-#         errors = ErrorDict()
-
-#         # First, do base field validations and any custom validations.
-
-#         # Assuming those pass, execute and capture the output.
-
-#         try:
-#             command = cls(cls.__name__, inputs=kwargs).execute()
-#         except Exception as exc:
-#             success = False
-#         else:
-#             success = True
-
-#         return Result(success, return_value, errors)
+        result = instance.execute()
+        return Result(success=True, return_value=result, errors=None)
