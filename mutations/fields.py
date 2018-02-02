@@ -12,6 +12,7 @@ class FieldBase(object):
         self.has_default = 'default' in kwargs
         self.default = kwargs.pop('default', None)
         self.saved = kwargs.pop('saved', False)
+        self.instance_of = kwargs.pop('instance_of', None)
 
     @property
     def validators(self):
@@ -22,6 +23,8 @@ class FieldBase(object):
             _.append(validators.NotBlankValidator())
         if self.saved:
             _.append(validators.SavedObjectValidator())
+        if self.instance_of:
+            _.append(validators.InstanceValidator(self.instance_of))
         return _
 
 class ObjectField(FieldBase):
@@ -33,7 +36,6 @@ class BooleanField(FieldBase):
     @property
     def validators(self):
         return validators.InstanceValidator(instance_of=bool)
-        
 
 class CharField(FieldBase):
     @property

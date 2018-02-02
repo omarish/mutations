@@ -44,6 +44,8 @@ class EmailToBouncedMessage(mutations.Mutation):
         return new_object
 ```
 
+## Calling Commands
+
 ```python
 >>> result = EmailToBouncedMessage.run(email=email, send_welcome_email=True)
 >>> result.success
@@ -75,6 +77,7 @@ $ make tests
 
 ### General
 
+- [ ] Support for Python 2.X.
 - [ ] Update README and provide more useful examples.
 - [ ] Put test requirements into `test-requirements.txt`
 - [ ] Make execute an `@abstractmethod`, so that an error gets raised if you don't define `execute` in your mutation subclass.
@@ -83,7 +86,6 @@ $ make tests
 - [x] Add `__version__`
 - [x] Test that exceptions can be raised when you `run`.
 - [ ] Support for running commands in an atomic (all or nothing) fashion.
-- [ ] Support for Python 2.X.
 
 
 ### Testing
