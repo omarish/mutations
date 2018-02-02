@@ -45,3 +45,11 @@ class CustomValidator(ValidatorBase):
 
     def is_valid(self, *args, **kwargs):
         return self.func(*args, **kwargs)
+
+class YesValidator(ValidatorBase):
+    def is_valid(self, *args, **kwargs):
+        return True
+
+class SavedObjectValidator(ValidatorBase):
+    def is_valid(self, obj):
+        return obj.pk is not None and obj.pk != ''

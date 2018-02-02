@@ -23,6 +23,9 @@ class UserSignup(Mutation):
         parts = self.name.split()
         if len(parts) < 2:
             raise ValidationError("need_full_name", "Please enter a full name.")
+
+    def foo_function(self):
+        return True
         
 class TestComplex(object):
     def test_validations(self):
@@ -39,3 +42,6 @@ class TestComplex(object):
         assert not result.success
         err_keys = result.errors.keys()
         assert 'name' in err_keys
+    
+    def test_helper_functions_do_not_appear(self):
+        assert not 'foo_function' in UserSignup.extra_validators

@@ -3,11 +3,15 @@ from . import validators
 class FieldBase(object):
     def __init__(self, name=None, **kwargs):
         self.name = name
+        self._add_validators(**kwargs)
+
+    def _add_validators(self, **kwargs):
         self.required = kwargs.pop('required', True)
         self.blank = kwargs.pop('blank', False)
-
+        self.saved = kwargs.pop('saved', False)
         self.has_default = 'default' in kwargs
         self.default = kwargs.pop('default', None)
+        self.saved = kwargs.pop('saved', False)
 
     @property
     def validators(self):
@@ -16,10 +20,14 @@ class FieldBase(object):
             _.append(validators.RequiredValidator())
         if self.blank == False:
             _.append(validators.NotBlankValidator())
+        if self.saved:
+            _.append(validators.SavedObjectValidator())
         return _
 
 class ObjectField(FieldBase):
-    pass
+    @property
+    def validators(self):
+        return validators.YesValidator()
 
 class BooleanField(FieldBase):
     @property
