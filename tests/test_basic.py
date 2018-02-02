@@ -25,9 +25,6 @@ class TestBasics(object):
         assert result.errors is None
         assert result.return_value == "".join([_yes, _email])
 
-    def test_field_validators(self):
-        assert RequiredValidator in map(type, SimpleMutation.fields['email'].validators)
-
     def test_requires_execute(self):
         """Make sure there's an error if you define a mutation without an 
         execute() method. """

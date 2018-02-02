@@ -2,7 +2,6 @@ import abc
 from collections import namedtuple, defaultdict
 
 from . import fields
-from . import validators
 from . import error
 from .util import wrap
 
@@ -60,22 +59,19 @@ class Mutation(metaclass=MutationBase):
         for field, validators in self.validators.items():
             value = self._get_input(field)
             for validator in validators:
-                success, msg = validator.validate(value)
+                success, err = validator.validate(value)
                 if not success:
-                    _[field].append(msg)
+                    _[field].append(err)
         return _
 
     def _validate_extra_fields(self):
         _ = error.ErrorDict()
-        for field, func in self.extra_validators.items():
-            value = self._get_input(field)
-            try:
-                func(value)
-            except error.ValidationError as err:
-                msg = str(err)
-                if msg == '':
-                    msg = "ValidationError"
-                _[field].append(msg)
+        for name, funcs in self.extra_validators.items():
+            for func in funcs:
+                try:
+                    func(self)
+                except error.ValidationError as err:
+                    _[name].append(err.as_object())
         return _
 
     def _get_input(self, field):

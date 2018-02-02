@@ -83,6 +83,7 @@ $ make tests
 - [x] Add `__version__`
 - [ ] Support for running commands in an atomic (all or nothing) fashion.
 - [ ] Support for Python 2.X.
+- [ ] Test that exceptions can be raised when you `run`.
 
 ### Testing
 

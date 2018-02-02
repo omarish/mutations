@@ -32,6 +32,11 @@ class CharField(FieldBase):
     def validators(self):
         return validators.InstanceValidator(instance_of=str)
 
+class DictField(FieldBase):
+    @property
+    def validators(self):
+        return validators.InstanceValidator(instance_of=dict)
+
 class DuckField(FieldBase):
     """Use this for duck-typing. """
     def __init__(self, instance_of, *args, **kwargs):

@@ -1,4 +1,4 @@
-from collections import UserDict
+from collections import UserDict, namedtuple
 
 class ErrorDict(UserDict):
     def __init__(self, *args, default_factory=list, **kwargs):
@@ -29,8 +29,19 @@ class MutationError(Exception):
     pass
 
 
+ErrorBody = namedtuple('ErrorBody', ['err', 'msg'])
+
 class ValidationError(MutationError):
-    pass
+    def __init__(self, err, msg=None, *args, **kwargs):
+        self.err = err
+        self.msg = msg
+        super().__init__(*args, **kwargs)
+
+    def __str__(self):
+        return str(self.msg)
+
+    def as_object(self):
+        return ErrorBody(err=self.err, msg=self.msg or self.err)
 
 
 class ExecuteNotImplementedError(NotImplementedError, MutationError):

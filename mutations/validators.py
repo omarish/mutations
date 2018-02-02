@@ -1,3 +1,5 @@
+from .error import ErrorBody
+
 class ValidatorBase(object):
     def validate(self, *args, **kwargs):
         valid = self.is_valid(*args, **kwargs)
@@ -10,12 +12,15 @@ class ValidatorBase(object):
         raise NotImplementedError()
 
     def get_error(self, val):
-        # TODO: Make sure this fails gracefully if it cannot be repr'ed.
-        return "%s failed with input %r." % (self.__class__.__name__, val)
+        err = self.__class__.__name__
+        msg = "%s failed with input %r." % (self.__class__.__name__, val)
+        return ErrorBody(err=err, msg=msg)
+        
 
 class RequiredValidator(ValidatorBase):
     def is_valid(self, val):
         return val is not None
+
 
 class NotBlankValidator(ValidatorBase):
     def is_valid(self, val, strip=False):
@@ -23,6 +28,7 @@ class NotBlankValidator(ValidatorBase):
             return val.strip() != ''
         else:
             return val != ''
+
 
 class InstanceValidator(ValidatorBase):
     def __init__(self, instance_of, *args, **kwargs):
