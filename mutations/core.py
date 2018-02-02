@@ -92,7 +92,7 @@ class Mutation(metaclass=MutationBase):
 
         if not is_valid:
             if raise_on_error:
-                raise error.ValidationError
+                raise error.ValidationError('invalid_inputs')
             else:
                 return Result(success=False, return_value=None, errors=error_dict)
 

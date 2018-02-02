@@ -29,7 +29,6 @@ class NotBlankValidator(ValidatorBase):
         else:
             return val != ''
 
-
 class InstanceValidator(ValidatorBase):
     def __init__(self, instance_of, *args, **kwargs):
         self.instance_of = instance_of

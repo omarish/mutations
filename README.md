@@ -81,9 +81,10 @@ $ make tests
 - [x] Create setup.py file
 - [ ] Add to pypi.
 - [x] Add `__version__`
+- [x] Test that exceptions can be raised when you `run`.
 - [ ] Support for running commands in an atomic (all or nothing) fashion.
 - [ ] Support for Python 2.X.
-- [ ] Test that exceptions can be raised when you `run`.
+
 
 ### Testing
 

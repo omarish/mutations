@@ -33,6 +33,10 @@ class TestBasics(object):
                 pass
             MutationWithoutExecute.run(email = _email)
 
+    def test_raise_on_run(self):
+        with pytest.raises(error.ValidationError):
+            SimpleMutation.run(raise_on_error=True)
+
 class SimpleMutationWithDefault(mutations.Mutation):
     email = fields.CharField(required=True)
     favorite_band = fields.CharField(required=False, default=_band)

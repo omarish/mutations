@@ -32,7 +32,7 @@ class MutationError(Exception):
 ErrorBody = namedtuple('ErrorBody', ['err', 'msg'])
 
 class ValidationError(MutationError):
-    def __init__(self, err, msg=None, *args, **kwargs):
+    def __init__(self, err=None, msg=None, *args, **kwargs):
         self.err = err
         self.msg = msg
         super().__init__(*args, **kwargs)
@@ -41,7 +41,7 @@ class ValidationError(MutationError):
         return str(self.msg)
 
     def as_object(self):
-        return ErrorBody(err=self.err, msg=self.msg or self.err)
+        return ErrorBody(err=self.err, msg=self.msg)
 
 
 class ExecuteNotImplementedError(NotImplementedError, MutationError):
