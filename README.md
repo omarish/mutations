@@ -9,6 +9,11 @@ Compose your business logic into commands that sanitize and validate input.
 3. Define an `execute` method in your command.
 4. Run it, lke this: `SimpleMutation.run(foo='bar')`
 
+## Pre-Alpha
+
+This is still in pre-alpha. See TODO for a list of things that we need to get
+done before officially releasing on PyPI.
+
 ## Example
 
 ```python
@@ -72,28 +77,6 @@ None
 ```bash
 $ make tests
 ```
-
-## TODO:
-
-### General
-
-- [ ] Support for Python 2.X.
-- [ ] Update README and provide more useful examples.
-- [ ] Put test requirements into `test-requirements.txt`
-- [ ] Make execute an `@abstractmethod`, so that an error gets raised if you don't define `execute` in your mutation subclass.
-- [x] Create setup.py file
-- [ ] Add to pypi.
-- [x] Add `__version__`
-- [x] Test that exceptions can be raised when you `run`.
-- [ ] Support for running commands in an atomic (all or nothing) fashion.
-
-
-### Testing
-
-- [ ] Make sure default values get overridden if there's a user-provided value.
-- [ ] Make sure command fails if you provide unexpected inputs.
-- [ ] Make sure `Mutation.__getattr__` raises if you ask it for something that does not exist.
-
 
 # Versioning
 

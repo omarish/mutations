@@ -37,6 +37,12 @@ class TestBasics(object):
         with pytest.raises(error.ValidationError):
             SimpleMutation.run(raise_on_error=True)
 
+    def test_raise_on_missing(self):
+        result = SimpleMutation.run()
+        assert not result.success
+        assert 'email' in result.errors
+
+
 class SimpleMutationWithDefault(mutations.Mutation):
     email = fields.CharField(required=True)
     favorite_band = fields.CharField(required=False, default=_band)
