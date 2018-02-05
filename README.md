@@ -19,18 +19,21 @@ done before officially releasing on PyPI.
 ```python
 import mutations
 
-class EmailToBouncedMessage(mutations.Mutation):
+class UserSignup(mutations.Mutation):
+    """Define the inputs to your mutation here. """
     email = mutations.fields.CharField(required=True)
-    send_welcome_email = mutations.fields.Boolean(required=False, default=False)
+    full_name = mutations.fields.CharField(required=True)
+    send_welcome_email = mutations.fields.Boolean(required=False, default=True)
 
-    def validate_email_object(self):
+    def validate_email_address(self):
         """Custom validation for a field.
 
         If you encounter any validation errors and want to raise, you should
         raise mutation.ValidationError or some sublcass thereof. Otherwise, it
         assumes there were no problems.
 
-        Any function beginning with `validate_` is assumed to be a validator function.
+        Any function beginning with `validate_` is assumed to be a validator
+        function and will be run before the mutation can execute.
         """
         if not self.email.is_valid():
             raise mutations.ValidationError("email_not_valid", "Email is not valid.")
@@ -41,27 +44,26 @@ class EmailToBouncedMessage(mutations.Mutation):
         This method does the heavy lifting. You can call it by calling .run() on
         your mutation class.
         """
-        new_object = "this is the new object"
+        user = User.objects.create(email=self.email, name=self.full_name)
         if self.send_welcome_email:
-            # You can access the inputs here, like this.
             PersonalEmailServer.deliver(recipient = self.email)
 
-        return new_object
+        return user
 ```
 
 ## Calling Commands
 
 ```python
->>> result = EmailToBouncedMessage.run(email=email, send_welcome_email=True)
+>>> result = EmailToBouncedMessage.run(email=email, full_name="Bob Boblob")
 >>> result.success
 True
 >>> result.value
-"this is the new object"
+<User id=...>
 >>> result.errors
 ```
 
 ```python
->>> result = EmailToBouncedMessage.run(email = None)
+>>> result = EmailToBouncedMessage.run(email=None)
 >>> result.success
 False
 >>> result.errors

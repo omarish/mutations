@@ -1,5 +1,10 @@
 from collections import UserDict, namedtuple
 
+
+class MutationError(Exception):
+    pass
+
+
 class ErrorDict(UserDict):
     def __init__(self, *args, default_factory=list, **kwargs):
         self.default_factory = default_factory
@@ -11,6 +16,8 @@ class ErrorDict(UserDict):
         return self.data[k]
 
     def __add__(self, other):
+        if self.default_factory != other.default_factory:
+            raise MutationError("Cannot add two ErrorDicts with different default_factories.")
         context = {}
         context.update(self)
         for key, val in other.items():
@@ -25,11 +32,8 @@ class ErrorDict(UserDict):
         return not bool(self.data)
 
 
-class MutationError(Exception):
-    pass
-
-
 ErrorBody = namedtuple('ErrorBody', ['err', 'msg'])
+
 
 class ValidationError(MutationError):
     def __init__(self, err=None, msg=None, *args, **kwargs):

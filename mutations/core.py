@@ -7,6 +7,7 @@ from .util import wrap
 
 Result = namedtuple('Result', ['success', 'return_value', 'errors'])
 
+
 class MutationBase(type):
     def __new__(mcs, name, bases, attrs):
         attrs.update({
@@ -30,8 +31,9 @@ class MutationBase(type):
         for v in extra_validator_list:
             validator = attrs.pop(v)
             attrs['extra_validators'][v].extend(wrap(validator))
-            
+
         return super().__new__(mcs, name, bases, attrs)
+
 
 class Mutation(metaclass=MutationBase):
     def __init__(self, name, inputs=None):
