@@ -54,7 +54,7 @@ class UserSignup(mutations.Mutation):
 ## Calling Commands
 
 ```python
->>> result = EmailToBouncedMessage.run(email=email, full_name="Bob Boblob")
+>>> result = UserSignup.run(email=email, full_name="Bob Boblob")
 >>> result.success
 True
 >>> result.value
@@ -63,7 +63,7 @@ True
 ```
 
 ```python
->>> result = EmailToBouncedMessage.run(email=None)
+>>> result = UserSignup.run(email=None)
 >>> result.success
 False
 >>> result.errors
