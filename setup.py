@@ -2,9 +2,6 @@ from distutils.core import setup
 
 import mutations
 
-with open('requirements.txt') as f:
-    requirements = f.read().splitlines()
-
 setup(
     name='Mutations',
     version=mutations.__version__,

@@ -1,14 +1,14 @@
-from collections import UserDict, namedtuple
-
+from collections import namedtuple
+from six.moves import UserDict
 
 class MutationError(Exception):
     pass
 
 
 class ErrorDict(UserDict):
-    def __init__(self, *args, default_factory=list, **kwargs):
-        self.default_factory = default_factory
-        super().__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        self.default_factory = kwargs.pop('default_factory', list)
+        UserDict.__init__(self, *args, **kwargs)
 
     def __getitem__(self, k):
         if not k in self.data:
@@ -39,7 +39,7 @@ class ValidationError(MutationError):
     def __init__(self, err=None, msg=None, *args, **kwargs):
         self.err = err
         self.msg = msg
-        super().__init__(*args, **kwargs)
+        MutationError.__init__(self, *args, **kwargs)
 
     def __str__(self):
         return str(self.msg)

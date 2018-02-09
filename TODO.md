@@ -8,15 +8,13 @@ List of things we need to do/fix before releasing on PyPI:
 - [ ] Make sure it raies if you give it a kwarg it doesn't know about.
 - [ ] Think of a better way to pass exceptions. I don't like passing the
     `nameduple` in the Exception.
-
-- [ ] Support for Python 2.X.
-- [ ] Update README and provide more useful examples.
-- [ ] Put test requirements into `test-requirements.txt`
 - [ ] Make execute an `@abstractmethod`, so that an error gets raised if
     you don't define `execute` in your mutation subclass.
 - [ ] Release on pypi.
 - [ ] Support for running commands in an atomic (all or nothing) fashion,
     perhaps using a contextmanager.
+
+- [x] Support for Python 2.X.
 - [x] Create setup.py file
 - [x] Add `__version__`
 - [x] Test that exceptions can be raised when you `run`.

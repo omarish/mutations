@@ -27,6 +27,7 @@ class FieldBase(object):
             _.append(validators.InstanceValidator(self.instance_of))
         return _
 
+
 class ObjectField(FieldBase):
     @property
     def validators(self):

@@ -32,7 +32,7 @@ class NotBlankValidator(ValidatorBase):
 class InstanceValidator(ValidatorBase):
     def __init__(self, instance_of, *args, **kwargs):
         self.instance_of = instance_of
-        super().__init__(*args, **kwargs)
+        super(InstanceValidator, self).__init__(*args, **kwargs)
 
     def is_valid(self, val):
         return isinstance(val, self.instance_of)

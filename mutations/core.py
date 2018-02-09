@@ -1,5 +1,5 @@
-import abc
 from collections import namedtuple, defaultdict
+import six
 
 from . import fields
 from . import error
@@ -32,10 +32,11 @@ class MutationBase(type):
             validator = attrs.pop(v)
             attrs['extra_validators'][v].extend(wrap(validator))
 
-        return super().__new__(mcs, name, bases, attrs)
+        return super(MutationBase, mcs).__new__(mcs, name, bases, attrs)
 
 
-class Mutation(metaclass=MutationBase):
+@six.add_metaclass(MutationBase)
+class Mutation(object):
     def __init__(self, name, inputs=None):
         self.name = name
         self.inputs = inputs or {}
