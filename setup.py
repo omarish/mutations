@@ -1,10 +1,14 @@
+import re
 from distutils.core import setup
+
+meta_file = open("mutations/metadata.py").read()
+md = dict(re.findall(r"__([a-z]+)__\s*=\s*'([^']+)'", meta_file))
 
 setup(
     name='mutations',
-    version='0.2.2',
-    author='Omar Bohsali',
-    author_email='me@omarish.com',
+    version=md['version'],
+    author=md['author'],
+    author_email=md['authoremail'],
     packages=['mutations'],
     url="http://github.com/omarish/mutations",
     license='MIT',

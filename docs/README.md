@@ -7,12 +7,9 @@ Compose your business logic into commands that sanitize and validate input.
 1. Subclass `mutations.Mutation`
 2. Define your inputs.
 3. Define an `execute` method in your command.
-4. Run it, lke this: `SimpleMutation.run(foo='bar')`
+4. Run it, like this: `SimpleMutation.run(foo='bar')`
 
-## Pre-Alpha
-
-This is still in pre-alpha. See TODO for a list of things that we need to get
-done before officially releasing on PyPI.
+To learn more, see [this blog post](https://omarish.com/2018/02/17/mutations.html).
 
 ## Example
 
@@ -46,8 +43,7 @@ class UserSignup(mutations.Mutation):
         """
         user = User.objects.create(email=self.email, name=self.full_name)
         if self.send_welcome_email:
-            PersonalEmailServer.deliver(recipient = self.email)
-
+            EmailServer.deliver(recipient = self.email)
         return user
 ```
 
@@ -60,6 +56,9 @@ True
 >>> result.value
 <User id=...>
 >>> result.errors
+
+result = ...
+
 ```
 
 ```python
@@ -86,8 +85,7 @@ This project uses [Semantic Versioning][semver].
 
 # Thanks
 
-Thanks to Cypriss for the excellent Ruby [Mutations Gem][1]. I created this
-library because I was looking for something similar for Python.
+Thanks to Cypriss for the excellent Ruby [Mutations Gem][1]. I created this library because I was looking for something similar for Python.
 
 [1]: https://github.com/cypriss/mutations
 [semver]: https://semver.org/
