@@ -51,37 +51,54 @@ class Mutation(object):
             raise AttributeError
 
     def _do_validation(self):
-        errors = self._validate_base_fields() + self._validate_extra_fields()
-        if errors.is_empty:
-            return (True, None)
-        else:
-            return (False, errors)
+        """Run all validations.
 
-    def _validate_base_fields(self):
-        _ = error.ErrorDict()
+        We validate by doing the following:
+
+        1. Validate base fields.
+        2. Validate extra fields.
+
+        If we encounter an error at any point along the way, mark that there has
+        been at least one error. Then, try and continue validation, but if we
+        run into another error (that is not a mutations error), terminate the
+        validation process. This might be caused by whatever caused the initial
+        validations.
+
+        Returns a tuple: (was_successful, error_dict)
+        """
+        error_dict = error.ErrorDict()
+        has_errors = False
+
         for field, validators in self.validators.items():
             value = self._get_input(field)
             for validator in validators:
                 success, err = validator.validate(value)
                 if not success:
-                    _[field].append(err)
-        return _
+                    error_dict[field].append(err)
+                    has_errors = True
 
-    def _validate_extra_fields(self):
-        _ = error.ErrorDict()
-        for name, funcs in self.extra_validators.items():
+        for validator_name, funcs in self.extra_validators.items():
             for func in funcs:
                 try:
                     func(self)
                 except error.ValidationError as err:
-                    _[name].append(err.as_object())
-        return _
+                    has_errors = True
+                    error_dict[validator_name].append(err.as_object())
+                except Exception as exc:
+                    if has_errors:
+                        return (False, error_dict)
+                    else:
+                        has_errors = True
+                        error_dict[validator_name].append(exc)
+
+        return (not has_errors, error_dict)
 
     def _get_input(self, field):
         if field in self.inputs:
             return self.inputs[field]
         elif self.fields[field].has_default:
             return self.fields[field].default
+        return
 
     def execute(self):
         raise error.ExecuteNotImplementedError(

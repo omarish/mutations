@@ -1,4 +1,6 @@
 from . import validators
+import decimal
+
 
 class FieldBase(object):
     def __init__(self, name=None, **kwargs):
@@ -19,34 +21,39 @@ class FieldBase(object):
         _ = []
         if self.required:
             _.append(validators.RequiredValidator())
-        if self.blank == False:
+        if not self.blank:
             _.append(validators.NotBlankValidator())
         if self.saved:
             _.append(validators.SavedObjectValidator())
         if self.instance_of:
             _.append(validators.InstanceValidator(self.instance_of))
+        if self.extra_validators:
+            _.append(self.extra_validators)
         return _
 
-
-class ObjectField(FieldBase):
     @property
-    def validators(self):
-        return validators.YesValidator()
+    def extra_validators(self):
+        raise NotImplementedError("implement in subclass")
 
-class BooleanField(FieldBase):
-    @property
-    def validators(self):
-        return validators.InstanceValidator(instance_of=bool)
 
-class CharField(FieldBase):
-    @property
-    def validators(self):
-        return validators.InstanceValidator(instance_of=str)
+def build_field_for(name, type_obj):
+    """Shortcut to define a field for a primitive. """
+    class DynamicField(FieldBase):
+        @property
+        def extra_validators(self):
+            return validators.InstanceValidator(type_obj)
+    DynamicField.__name__ = name
+    return DynamicField
 
-class DictField(FieldBase):
-    @property
-    def validators(self):
-        return validators.InstanceValidator(instance_of=dict)
+
+ObjectField = build_field_for("ObjectField", object)
+BooleanField = build_field_for("BooleanField", bool)
+CharField = build_field_for("CharField", str)
+StringField = build_field_for("StringField", str)
+DictField = build_field_for("DictField", dict)
+DecimalField = build_field_for("DecimalField", decimal.Decimal)
+NumericField = build_field_for("NumericField", (int, float, decimal.Decimal))
+
 
 class DuckField(FieldBase):
     """Use this for duck-typing. """
@@ -55,5 +62,5 @@ class DuckField(FieldBase):
         super().__init__(*args, **kwargs)
 
     @property
-    def validators(self):
+    def extra_validators(self):
         return validators.InstanceValidator(instance_of=self.instance_of)

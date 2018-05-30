@@ -10,12 +10,14 @@ _email = "user@example.com"
 _name = "Bob Boblob"
 _band = 'Nickelback'
 
+
 class SimpleMutation(mutations.Mutation):
     email = fields.CharField(required=True)
     send_welcome_email = fields.BooleanField(required=False, default=False)
 
     def execute(self):
         return "".join([_yes, _email])
+
 
 class TestBasics(object):
     def test_basics(self):
@@ -26,7 +28,7 @@ class TestBasics(object):
         assert result.return_value == "".join([_yes, _email])
 
     def test_requires_execute(self):
-        """Make sure there's an error if you define a mutation without an 
+        """Make sure there's an error if you define a mutation without an
         execute() method. """
         with pytest.raises(error.ExecuteNotImplementedError):
             class MutationWithoutExecute(mutations.Mutation):
@@ -39,6 +41,11 @@ class TestBasics(object):
 
     def test_raise_on_missing(self):
         result = SimpleMutation.run()
+        assert not result.success
+        assert 'email' in result.errors
+
+    def test_invalid_input(self):
+        result = SimpleMutation.run(email=1234)
         assert not result.success
         assert 'email' in result.errors
 
@@ -78,3 +85,10 @@ class TestValidators():
         assert not _("foo")
         assert _([1, 1, 2, 3, 5, 8, 13, 21])
         assert not _((1, 1, 1))
+
+    def test_instance_validator_type(self):
+        class MyType(object):
+            pass
+
+        _ = InstanceValidator(MyType).is_valid
+        assert _(MyType())

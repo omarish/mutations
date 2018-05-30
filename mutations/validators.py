@@ -1,5 +1,6 @@
 from .error import ErrorBody
 
+
 class ValidatorBase(object):
     def validate(self, *args, **kwargs):
         valid = self.is_valid(*args, **kwargs)
@@ -15,7 +16,7 @@ class ValidatorBase(object):
         err = self.__class__.__name__
         msg = "%s failed with input %r." % (self.__class__.__name__, val)
         return ErrorBody(err=err, msg=msg)
-        
+
 
 class RequiredValidator(ValidatorBase):
     def is_valid(self, val):
@@ -31,11 +32,14 @@ class NotBlankValidator(ValidatorBase):
 
 class InstanceValidator(ValidatorBase):
     def __init__(self, instance_of, *args, **kwargs):
+        if not isinstance(instance_of, (list, tuple)):
+            instance_of = (instance_of,)
         self.instance_of = instance_of
         super(InstanceValidator, self).__init__(*args, **kwargs)
 
     def is_valid(self, val):
         return isinstance(val, self.instance_of)
+
 
 class CustomValidator(ValidatorBase):
     def __init__(self, func, *args, **kwargs):
@@ -45,9 +49,11 @@ class CustomValidator(ValidatorBase):
     def is_valid(self, *args, **kwargs):
         return self.func(*args, **kwargs)
 
+
 class YesValidator(ValidatorBase):
     def is_valid(self, *args, **kwargs):
         return True
+
 
 class SavedObjectValidator(ValidatorBase):
     def is_valid(self, obj):

@@ -34,6 +34,7 @@ class ErrantMutation(mutations.Mutation):
         temp = self.this_field_does_not_exist
         return "123"
 
+
 class TestErrorHandling(object):
     def test_raise_on_invalid_attribute(self):
         with pytest.raises(AttributeError):
