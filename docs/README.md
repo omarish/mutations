@@ -2,6 +2,12 @@
 
 Compose your business logic into commands that sanitize and validate input.
 
+## Install
+
+```bash
+$ pip install mutations
+```
+
 ## How it Works:
 
 1. Subclass `mutations.Mutation`
@@ -53,7 +59,7 @@ class UserSignup(mutations.Mutation):
 >>> result = UserSignup.run(email=email, full_name="Bob Boblob")
 >>> result.success
 True
->>> result.value
+>>> result.return_value
 <User id=...>
 >>> result.errors
 
