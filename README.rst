@@ -1,8 +1,18 @@
+.. raw:: html
+
+   <div align="center">
+
 Mutations
 =========
 
+`pypi-version <https://pypi.org/project/mutations/>`__
+
 Compose your business logic into commands that sanitize and validate
 input.
+
+.. raw:: html
+
+   </div>
 
 Install
 -------
