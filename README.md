@@ -1,6 +1,11 @@
+<div align="center">
+
 # Mutations
 
+[![pypi-version]][pypi]
+
 Compose your business logic into commands that sanitize and validate input.
+</div>
 
 ## Install
 
@@ -95,3 +100,5 @@ Thanks to Cypriss for the excellent Ruby [Mutations Gem][1]. I created this libr
 
 [1]: https://github.com/cypriss/mutations
 [semver]: https://semver.org/
+[pypi-version]: https://img.shields.io/pypi/v/mutations.svg
+[pypi]: https://pypi.org/project/mutations/
