@@ -1,11 +1,8 @@
-<div align="center">
-
 # Mutations
 
 [![pypi-version]][pypi]
 
 Compose your business logic into commands that sanitize and validate input.
-</div>
 
 ## Install
 

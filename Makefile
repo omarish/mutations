@@ -1,7 +1,4 @@
-.PHONY: docs tests
-
-docs:
-	pandoc -f gfm -t rst docs/README.md > README.rst
+.PHONY: tests
 
 tests:
 	python -m pytest
