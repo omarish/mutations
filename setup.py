@@ -1,11 +1,13 @@
 import re
-from distutils.core import setup
+from setuptools import setup
 from os import path
 
-meta_file = open("mutations/metadata.py").read()
+project_path = path.abspath(path.dirname(__file__))
+
+
+meta_file = open(path.join(project_path, "mutations", "metadata.py")).read()
 md = dict(re.findall(r"__([a-z]+)__\s*=\s*'([^']+)'", meta_file))
 
-project_path = path.abspath(path.dirname(__file__))
 
 with open(path.join(project_path, 'README.md')) as f:
     long_description = f.read()
