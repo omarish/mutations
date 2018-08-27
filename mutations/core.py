@@ -5,7 +5,10 @@ from . import fields
 from . import error
 from .util import wrap
 
+
 Result = namedtuple('Result', ['success', 'return_value', 'errors'])
+ValidationResult = namedtuple('ValidationResult', ['is_valid', 'errors'])
+
 
 class MutationBase(type):
     def __new__(mcs, name, bases, attrs):
@@ -119,7 +122,12 @@ class Mutation(object):
         return Result(success=True, return_value=result, errors=None)
 
     @classmethod
-    def validate(cls, **kwargs):
+    def validate(cls, raise_on_error=False, **kwargs):
         instance = cls(cls.__name__, inputs = kwargs)
         is_valid, error_dict = instance._validate()
-        return Result(success=is_valid, errors=error_dict)
+        if not is_valid:
+            if raise_on_error:
+                raise error.MutationFailedValidationError(error_dict)
+            else:
+                return ValidationResult(is_valid=False, errors=error_dict)
+        return ValidationResult(is_valid=is_valid, errors=error_dict)

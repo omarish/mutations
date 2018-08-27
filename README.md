@@ -85,10 +85,8 @@ None
 
 ```python
 >>> result = UserSignup.validate(email=email, full_name="Bob Boblob")
->>> result.success
+>>> result.is_valid
 True
->>> result.return_value
-
 ```
 
 ## Testing

@@ -49,6 +49,17 @@ class TestBasics(object):
         assert not result.success
         assert 'email' in result.errors
 
+    def test_validation_only(self):
+        v = SimpleMutation.validate(send_welcome_email=True, raise_on_error=False)
+        assert isinstance(v, mutations.core.ValidationResult)
+
+        with pytest.raises(error.MutationFailedValidationError):
+            v = SimpleMutation.validate(
+                send_welcome_email=True, raise_on_error=True)
+
+        v = SimpleMutation.validate(email="user@example.com")
+        assert isinstance(v, mutations.core.ValidationResult)
+        assert v.is_valid == True
 
 class SimpleMutationWithDefault(mutations.Mutation):
     email = fields.CharField(required=True)
