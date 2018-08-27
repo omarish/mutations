@@ -42,3 +42,13 @@ def test_missing_object():
 
     result = CommandForTest.run(input_object=None)
     assert not result.success
+
+
+def test_raise_returns_errors():
+    with pytest.raises(mutations.error.MutationFailedValidationError) as exc:
+        CommandForTest.run(raise_on_error=True)
+    err = exc.value
+    assert isinstance(err, mutations.error.MutationFailedValidationError)
+    body = exc.value.error_dict
+    assert 'batch_size' in body.keys()
+    assert 'input_object' in body.keys()

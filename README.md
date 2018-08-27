@@ -81,10 +81,25 @@ mutations.ErrorDict({
 None
 ```
 
+## Only Run Validations
+
+```python
+>>> result = UserSignup.validate(email=email, full_name="Bob Boblob")
+>>> result.is_valid
+True
+```
+
 ## Testing
 
 ```bash
 $ make tests
+```
+
+When you're ready to do a release, please make sure tests pass across both 2.7
+and 3.6 by running tox:
+
+```bash
+$ tox
 ```
 
 # Versioning
