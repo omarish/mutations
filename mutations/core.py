@@ -7,7 +7,6 @@ from .util import wrap
 
 Result = namedtuple('Result', ['success', 'return_value', 'errors'])
 
-
 class MutationBase(type):
     def __new__(mcs, name, bases, attrs):
         attrs.update({
@@ -50,7 +49,7 @@ class Mutation(object):
         else:
             raise AttributeError
 
-    def _do_validation(self):
+    def _validate(self):
         """Run all validations.
 
         We validate by doing the following:
@@ -108,13 +107,19 @@ class Mutation(object):
     def run(cls, raise_on_error=False, **kwargs):
         """Validate the inputs and then calls execute() to run the command. """
         instance = cls(cls.__name__, inputs = kwargs)
-        is_valid, error_dict = instance._do_validation()
+        is_valid, error_dict = instance._validate()
 
         if not is_valid:
             if raise_on_error:
-                raise error.ValidationError('invalid_inputs')
+                raise error.MutationFailedValidationError(error_dict)
             else:
                 return Result(success=False, return_value=None, errors=error_dict)
 
         result = instance.execute()
         return Result(success=True, return_value=result, errors=None)
+
+    @classmethod
+    def validate(cls, **kwargs):
+        instance = cls(cls.__name__, inputs = kwargs)
+        is_valid, error_dict = instance._validate()
+        return Result(success=is_valid, errors=error_dict)

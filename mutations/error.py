@@ -48,5 +48,10 @@ class ValidationError(MutationError):
         return ErrorBody(err=self.err, msg=self.msg)
 
 
+class MutationFailedValidationError(ValidationError):
+    def __init__(self, error_dict={}):
+        self.error_dict = error_dict
+
+
 class ExecuteNotImplementedError(NotImplementedError, MutationError):
     pass
