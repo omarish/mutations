@@ -89,6 +89,45 @@ None
 True
 ```
 
+## Async Support
+You can also define an asynchronous execute() function:
+```python
+import mutations
+
+class AsyncUserSignup(mutations.AsyncMutation):
+    email = mutations.fields.CharField(required=True)
+    full_name = mutations.fields.CharField(required=True)
+    send_welcome_email = mutations.fields.Boolean(required=False, default=True)
+
+    def validate_email_address(self):
+        if not self.email.is_valid():
+            raise mutations.ValidationError("email_not_valid", "Email is not valid.")
+
+    async def execute(self):
+        """An asynchronous version of the `execute` function."""
+        user = await User.objects.create(email=self.email, name=self.full_name)
+        if self.send_welcome_email:
+            EmailServer.deliver(recipient = self.email)
+        return user
+```
+
+
+You can run the mutation using:
+```python
+>>> result = await AsyncUserSignup.run(email=email, full_name="Bob Boblob")
+>>> result.success
+True
+>>> result.return_value
+<User id=...>
+```
+
+Validations do not need to be awaited:
+```python
+>>> result = AsyncUserSignup.validate(email=email, full_name="Bob Boblob")
+>>> result.is_valid
+True
+```
+
 ## Testing
 
 ```bash
