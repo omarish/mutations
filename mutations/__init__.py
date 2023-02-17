@@ -1,2 +1,2 @@
-from .core import Mutation, AsyncMutation
+from .core import Mutation
 from .error import ValidationError

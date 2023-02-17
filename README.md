@@ -94,7 +94,7 @@ You can also define an asynchronous execute() function:
 ```python
 import mutations
 
-class AsyncUserSignup(mutations.AsyncMutation):
+class AsyncUserSignup(mutations.Mutation):
     email = mutations.fields.CharField(required=True)
     full_name = mutations.fields.CharField(required=True)
     send_welcome_email = mutations.fields.Boolean(required=False, default=True)
@@ -112,16 +112,16 @@ class AsyncUserSignup(mutations.AsyncMutation):
 ```
 
 
-You can run the mutation using:
+You can run the mutation as usual - note that you **do not** need to `await` the result:
 ```python
->>> result = await AsyncUserSignup.run(email=email, full_name="Bob Boblob")
+>>> result = AsyncUserSignup.run(email=email, full_name="Bob Boblob")
 >>> result.success
 True
 >>> result.return_value
 <User id=...>
 ```
 
-Validations do not need to be awaited:
+Validations also do not need to be awaited:
 ```python
 >>> result = AsyncUserSignup.validate(email=email, full_name="Bob Boblob")
 >>> result.is_valid

@@ -1,4 +1,7 @@
+import asyncio
 from collections import namedtuple, defaultdict
+import inspect
+import threading
 import six
 
 from . import fields
@@ -9,6 +12,17 @@ from .util import wrap
 Result = namedtuple('Result', ['success', 'return_value', 'errors'])
 ValidationResult = namedtuple('ValidationResult', ['is_valid', 'errors'])
 
+
+class RunThread(threading.Thread):
+    def __init__(self, func):
+        self.func = func
+        self.result = None
+        super().__init__()
+        super().start()
+        super().join()
+
+    def run(self):
+        self.result = asyncio.run(self.func())
 
 class MutationBase(type):
     def __new__(mcs, name, bases, attrs):
@@ -102,6 +116,17 @@ class Mutation(object):
             return self.fields[field].default
         return
 
+    def _execute_async(self):
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = None
+
+        if loop and loop.is_running():
+            return RunThread(self.execute).result
+        else:
+            return asyncio.run(self.execute())
+
     def execute(self):
         raise error.ExecuteNotImplementedError(
             "`execute` should be implemented by the subclass.")
@@ -118,7 +143,10 @@ class Mutation(object):
             else:
                 return Result(success=False, return_value=None, errors=error_dict)
 
-        result = instance.execute()
+        if inspect.isawaitable(instance.execute()):
+            result = instance._execute_async()
+        else:
+            result = instance.execute()
         return Result(success=True, return_value=result, errors=None)
 
     @classmethod
@@ -131,21 +159,3 @@ class Mutation(object):
             else:
                 return ValidationResult(is_valid=False, errors=error_dict)
         return ValidationResult(is_valid=is_valid, errors=error_dict)
-
-
-@six.add_metaclass(MutationBase)
-class AsyncMutation(Mutation):
-    @classmethod
-    async def run(cls, raise_on_error=False, **kwargs):
-        """Validate the inputs and then awaits execute() to run the command. """
-        instance = cls(cls.__name__, inputs = kwargs)
-        is_valid, error_dict = instance._validate()
-
-        if not is_valid:
-            if raise_on_error:
-                raise error.MutationFailedValidationError(error_dict)
-            else:
-                return Result(success=False, return_value=None, errors=error_dict)
-
-        result = await instance.execute()
-        return Result(success=True, return_value=result, errors=None)
